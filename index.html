@@ -95,44 +95,19 @@ end</textarea>
         <div class="panel">
             <label>Обфусцированный код (Lua, Roblox совместим):</label>
             <textarea id="outputCode" readonly></textarea>
-            <button id="obfuscateBtn" disabled>Загрузка парсера...</button>
+            <button id="obfuscateBtn" disabled>Загрузка...</button>
             <span id="status"></span>
         </div>
     </div>
 
-    <script>
-        // Динамическая загрузка luaparse с fallback
-        function loadScript(src, fallbackSrc, callback) {
-            const script = document.createElement('script');
-            script.src = src;
-            script.onload = function() {
-                if (typeof luaparse !== 'undefined') {
-                    callback();
-                } else {
-                    // Если не определился — пробуем fallback
-                    if (fallbackSrc) {
-                        loadScript(fallbackSrc, null, callback);
-                    } else {
-                        document.getElementById('status').textContent = 'Ошибка: не удалось загрузить парсер Lua (luaparse). Проверьте соединение.';
-                        document.getElementById('obfuscateBtn').disabled = false;
-                    }
-                }
-            };
-            script.onerror = function() {
-                if (fallbackSrc) {
-                    loadScript(fallbackSrc, null, callback);
-                } else {
-                    document.getElementById('status').textContent = 'Ошибка: не удалось загрузить парсер Lua (luaparse). Проверьте соединение.';
-                    document.getElementById('obfuscateBtn').disabled = false;
-                }
-            };
-            document.head.appendChild(script);
-        }
+    <!-- Подключаем luaparse с cdnjs (надёжный CDN) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/luaparse/0.3.1/luaparse.min.js"></script>
 
-        // После загрузки luaparse запускаем обфускатор
-        function initObfuscator() {
+    <script>
+        // Запускаем обфускатор после загрузки страницы и библиотеки
+        window.addEventListener('load', function() {
             if (typeof luaparse === 'undefined') {
-                document.getElementById('status').textContent = 'Ошибка: luaparse не определён после загрузки.';
+                document.getElementById('status').textContent = 'Ошибка: не удалось загрузить парсер Lua (luaparse). Проверьте соединение или попробуйте позже.';
                 document.getElementById('obfuscateBtn').disabled = false;
                 return;
             }
@@ -769,14 +744,7 @@ return ${names.runVM}(${names.main})
                     }
                 });
             })();
-        }
-
-        // Загружаем luaparse с основного CDN, затем с fallback
-        loadScript(
-            'https://cdn.jsdelivr.net/npm/luaparse@0.3.1/dist/luaparse.min.js',
-            'https://unpkg.com/luaparse@0.3.1/dist/luaparse.min.js',
-            initObfuscator
-        );
+        });
     </script>
 </body>
 </html>
